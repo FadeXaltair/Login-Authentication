@@ -8,13 +8,14 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+// / creating the tokenn ....
 func GenerateJwtToken() (string, error) {
 	mySignedKey := []byte(SECRET_KEY)
 
 	User := models.CustomClaim{
-		Token: "creating token",
+		Name: "Hitesh",
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().AddDate(2400, 39, 30).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute * 50).Unix(),
 		},
 	}
 
@@ -31,6 +32,7 @@ func GenerateJwtToken() (string, error) {
 	return ss, nil
 }
 
+// / checking of tokenn
 func CheckJWTToken(token string) string {
 
 	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
@@ -41,7 +43,7 @@ func CheckJWTToken(token string) string {
 	}
 
 	if jwtToken.Valid {
-		log.Println("allowww")
+		// log.Println("allowww")
 		return "allow"
 	}
 

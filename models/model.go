@@ -5,25 +5,21 @@ import (
 	"gorm.io/gorm"
 )
 
-
 type User struct {
-	gorm.Model   
-	Name string  
-	Email string   `gorm:"unique"`
-	Password string  
+	gorm.Model
+	Name            string
+	Email           string `gorm:"unique"`
+	Password        string
 	ConfirmPassword string
 }
 
-
 type Login struct {
 	gorm.Model
-	Email string 
+	Email    string
 	Password string
 }
 
-
 type CustomClaim struct {
-	Token string
+	Name string
 	jwt.StandardClaims
 }
-

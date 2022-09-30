@@ -14,9 +14,9 @@ func Signup(c *gin.Context) {
 
 	//-------------body to strore the value -----------//
 	var body struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Name            string `json:"name"`
+		Email           string `json:"email"`
+		Password        string `json:"password"`
 		ConfirmPassword string `json:"confirm_password"`
 	}
 	c.Bind(&body)
@@ -44,15 +44,10 @@ func Signup(c *gin.Context) {
 		return
 
 	}
-	Toke, err := initiializers.GenerateJwtToken()
-	if err != nil {
-		log.Println(err)
-	}
 
 	//------------------if everything is right ------------------//
 	c.JSON(http.StatusOK, gin.H{
-		"positive":   "your account has been created",
-		"your token": Toke,
+		"positive": "your account has been created",
 	})
 }
 
@@ -75,36 +70,55 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-
-	logger := models.Login{
-		Email:    body.Email,
-		Password: body.Password,
-	}
-	initiializers.DB.Create(&logger)
 	/// comparing hashes //
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	error := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 
-	if err != nil {
+	if error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "invalid passs",
 		})
 		return
 	}
 
+	hsh, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+
+	if err != nil {
+		log.Println("error while encrypting")
+	}
+
+	logger := models.Login{
+		Email:    body.Email,
+		Password: string(hsh),
+	}
+
+	var loger models.Login
+
+	initiializers.DB.First(&logger, "email = ?", body.Email)
+
+	if loger.ID == 0 {
+		result2 := initiializers.DB.Create(&logger)
+		if result2.Error != nil {
+			log.Println("error while editing it into logging databases")
+		}
+	}
 	//---jwt create tokenn ///]]]]
 
-	// c.SetSameSite(http.SameSiteLaxMode)
-	// c.SetCookie("authorize", tokenString, 3600*24*30, "", "", false, true)
+	Toke, err := initiializers.GenerateJwtToken()
+	if err != nil {
+		log.Println(err)
+	}
 
+	initiializers.Tokenn = Toke
 	c.JSON(http.StatusOK, gin.H{
 		"token": "Your token generatted successfully",
 	})
 
 }
 
-// func Validate(c *gin.Context) {
-// 	c.JSON(http.StatusOK, gin.H{
-// 		"message": "you are loging successfully",
-// 	})
-// }
+func Validate(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "you are loging successfully",
+		"token":   "you are a valid token",
+	})
+}

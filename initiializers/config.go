@@ -1,6 +1,10 @@
 package initiializers
 
+import "os"
+
 var (
-	SECRET_KEY = "hereisthesecretkey"
-	dsn = "host=localhost user=bogi password=root dbname=altair port=5432 sslmode=disable"
+	SECRET_KEY = os.Getenv("SECRET_KEY")
+	dsn        = os.Getenv("DSN")
 )
+
+var Tokenn string
